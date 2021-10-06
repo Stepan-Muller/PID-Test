@@ -4,10 +4,10 @@ public class MenuItem
 {
 
 	public String name = " ";
-	public double value = 0;
-	public double increment = 1;
-	public double minValue = Double.NEGATIVE_INFINITY;
-	public double maxValue = Double.POSITIVE_INFINITY;
+	public float value = 0;
+	public float increment = 1;
+	public float minValue = Float.NEGATIVE_INFINITY;
+	public float maxValue = Float.POSITIVE_INFINITY;
 	public boolean secondaryFunction = false;
 	
 	public void run() {}
@@ -15,7 +15,7 @@ public class MenuItem
 	
 	public MenuItem() {}
 	
-	public MenuItem(String _name, double _value, double _increment, double _minValue, double _maxValue, boolean _secondaryFunction)
+	public MenuItem(String _name, float _value, float _increment, float _minValue, float _maxValue, boolean _secondaryFunction)
 	{
 		
 		name = _name;

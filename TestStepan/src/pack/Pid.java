@@ -35,17 +35,17 @@ public class Pid extends MenuItem
 	public Pid()
 	{
 		
-		values = new ArrayList<MenuItem>();
-		values.add(new MenuItem("konst. P", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("konst. I", 0, 0.0001, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("konst. D", 0, 1000, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("I limit", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("delay", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("accel rate", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("max speed", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values = new ArrayList<MenuItem>(8);
+		values.add(new MenuItem("konst. P", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. I", 0, 0.0001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. D", 0, 1000, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("I limit", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("accel rate", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
-		this.increment = 10;
+		this.increment = 100;
 		this.minValue = 0;
 		this.secondaryFunction = true;
 		
@@ -83,8 +83,8 @@ public class Pid extends MenuItem
 		
 		distanceTravelled = 0;
 		
-		minPortion = (float)values.get(7).value / (float)values.get(6).value;
-		accelDistance = (float) ((values.get(6).value - values.get(7).value) * values.get(5).value);
+		minPortion = values.get(7).value / values.get(6).value;
+		accelDistance = (values.get(6).value - values.get(7).value) * values.get(5).value;
 		
 		if(accelDistance > distance / 2)
 			accelDistance = distance / 2;
@@ -96,14 +96,14 @@ public class Pid extends MenuItem
 			
 			error = gyroSample[0] - goal;
 			
-			p = (float) (error * values.get(0).value);
-			i = (float) (i + (error * values.get(1).value));
-			d = (float) ((error - lastError) * values.get(2).value);
+			p = error * values.get(0).value;
+			i = i + (error * values.get(1).value);
+			d = (error - lastError) * values.get(2).value;
 			
-			if (i > (float) values.get(3).value)
-				i = (float) values.get(3).value;
-			if (i < -1 * (float) values.get(3).value)
-				i = -1 * (float) values.get(3).value;
+			if (i > values.get(3).value)
+				i = values.get(3).value;
+			if (i < -1 * values.get(3).value)
+				i = -1 * values.get(3).value;
 			
 			if (distanceTravelled < accelDistance)
 				acceleration = distanceTravelled * (1 - minPortion) / accelDistance + minPortion;
@@ -132,7 +132,7 @@ public class Pid extends MenuItem
 			Delay.msDelay((long) values.get(4).value);
 			
 			distanceTravelled = (motorL.getTachoCount() - motorR.getTachoCount()) / 2;
-			
+
 		}
 		
 		motorL.setPower(0);

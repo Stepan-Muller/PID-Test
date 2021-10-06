@@ -3,57 +3,91 @@ package pack;
 import java.util.List;
 
 import lejos.hardware.Button;
+import lejos.hardware.Sound;
 import lejos.hardware.lcd.LCD;
 
 public class Menu
 {
-
-	static int selected = 0;
-	static List<? extends MenuItem> list;
 	
-	public Menu(List<? extends MenuItem> _list)
+	public Menu(List<? extends MenuItem> list)
 	{
 		
-		list = _list;
 		int buttonID;
 		boolean opened = true;
+		int selected = 0;
+		int scrolled = 0;
 		
-		renderMenu();
+		renderMenu(list, selected, scrolled);
 		
 		while (opened)
 		{
 			
 			buttonID = Button.waitForAnyPress();
 			
-			if(buttonID == Button.ID_UP && selected > 0)
+			if(buttonID == Button.ID_UP)
 			{	
-			
-				selected--;
-				renderMenu();
+				if(selected > 0)
+				{
+					
+					selected--;
+					
+					if(selected < scrolled)
+						scrolled--;
+					
+					renderMenu(list, selected, scrolled);
+					
+				}
+				else
+					Sound.buzz();
 				
 			}
 			
-			if(buttonID == Button.ID_DOWN && selected < list.size() - 1)
+			if(buttonID == Button.ID_DOWN)
 			{
 				
-				selected++;
-				renderMenu();
+				if(selected < list.size() - 1)
+				{
+					
+					selected++;
+					
+					if(selected > scrolled + 7)
+						scrolled++;
+					
+					renderMenu(list, selected, scrolled);
+					
+				}
+				else
+					Sound.buzz();
 				
 			}	
 
-			if(buttonID == Button.ID_LEFT && list.get(selected).value >= list.get(selected).minValue + list.get(selected).increment)
+			if(buttonID == Button.ID_LEFT)
 			{	
 			
-				list.get(selected).value -= list.get(selected).increment;
-				renderMenu();
+				if(list.get(selected).value >= list.get(selected).minValue + list.get(selected).increment)
+				{
+					
+					list.get(selected).value -= list.get(selected).increment;
+					renderMenu(list, selected, scrolled);
+					
+				}
+				else
+					Sound.buzz();
 				
 			}
 			
-			if(buttonID == Button.ID_RIGHT && list.get(selected).value <= list.get(selected).maxValue - list.get(selected).increment)
+			if(buttonID == Button.ID_RIGHT)
 			{
 				
-				list.get(selected).value += list.get(selected).increment;
-				renderMenu();
+				if(list.get(selected).value <= list.get(selected).maxValue - list.get(selected).increment)
+				{
+					
+					list.get(selected).value += list.get(selected).increment;
+					renderMenu(list, selected, scrolled);
+					
+				}
+				else
+					Sound.buzz();
 				
 			}
 			
@@ -61,7 +95,7 @@ public class Menu
 			{
 				
 				list.get(selected).run();
-				renderMenu();
+				renderMenu(list, selected, scrolled);
 				
 			}
 			
@@ -70,7 +104,7 @@ public class Menu
 				{
 					
 					list.get(selected).secondFunction();
-					renderMenu();
+					renderMenu(list, selected, scrolled);
 					
 				}
 				else
@@ -84,17 +118,17 @@ public class Menu
 		
 	}
 	
-	static void renderMenu()
+	static void renderMenu(List<? extends MenuItem> list, int selected, int scrolled)
 	{
 		
 		LCD.clear();
 		
-		for (int i = 0; i < list.size(); i++)
+		for (int i = 0; i < 8 && i < list.size(); i++)
 		{
 			
-			LCD.drawString(list.get(i).name, 0, i, i == selected);
+			LCD.drawString(list.get(i + scrolled).name, 0, i, i + scrolled == selected);
 			
-			LCD.drawString(String.valueOf(list.get(i).value), 17 - String.valueOf(list.get(i).value).length(), i);
+			LCD.drawString(String.valueOf(list.get(i + scrolled).value), 17 - String.valueOf(list.get(i + scrolled).value).length(), i);
 			
 		}
 
