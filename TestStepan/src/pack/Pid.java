@@ -1,20 +1,23 @@
 package pack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lejos.hardware.motor.UnregulatedMotor;
+import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-public class Pid
+public class Pid extends MenuItem
 {
 
-	float kP;
-	float kI;
-	float kD;
-	float iLimit;
-	long delay;
-	float accelRate;
+	List<MenuItem> values;
+	
+	UnregulatedMotor motorL;
+	UnregulatedMotor motorR;
+	SampleProvider gyroSampleProvider;
 	
 	float p;
 	float i;
@@ -23,41 +26,55 @@ public class Pid
 	int distanceTravelled;
 	float minPortion;
 	float accelDistance;
-	
 	float error;
 	float lastError;
-	
 	int motorLSpeed;
 	int motorRSpeed;
-	
-	static UnregulatedMotor motorL;
-	static UnregulatedMotor motorR;
-	
-	static SampleProvider gyroSampleProvider;
-	
 	static float[] gyroSample;
-
-	public Pid(float _kP, float _kI, float _kD, float _iLimit, long _delay, float _accelRate, Port motorPortL, Port motorPortR, Port gyroPort)
+	
+	public Pid()
 	{
 		
-		kP = _kP;
-		kI = _kI;
-		kD = _kD;
-		iLimit = _iLimit;
-		delay = _delay;
-		accelRate =_accelRate;
+		values = new ArrayList<MenuItem>();
+		values.add(new MenuItem("konst. P", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. I", 0, 0.0001, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. D", 0, 1000, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("I limit", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("delay", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("accel rate", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 0, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false));
 		
-		motorL = new UnregulatedMotor(motorPortL);
-		motorR = new UnregulatedMotor(motorPortR);
-		
-		gyroSampleProvider = new EV3GyroSensor(gyroPort).getAngleMode();
-		
-		gyroSample = new float[gyroSampleProvider.sampleSize()];
+		this.increment = 10;
+		this.minValue = 0;
+		this.secondaryFunction = true;
 		
 	}
 	
-	public void run(int distance, float goal, int maxSpeed, int minSpeed)
+	@Override
+	public void secondFunction()
 	{
+		
+		Menu subMenu = new Menu(values);
+		
+	}
+	
+	@Override
+	public void run()
+	{
+		
+		gyroSample = new float[gyroSampleProvider.sampleSize()];
+		
+		gyroSampleProvider.fetchSample(gyroSample, 0);
+		
+		run((int) value, gyroSample[0]);
+		
+	}
+	
+	public void run(int distance, float goal)
+	{
+		
+		gyroSample = new float[gyroSampleProvider.sampleSize()];
 		
 		i = 0;
 		
@@ -66,8 +83,8 @@ public class Pid
 		
 		distanceTravelled = 0;
 		
-		minPortion = (float)minSpeed / (float)maxSpeed;
-		accelDistance = (maxSpeed - minSpeed) * accelRate;
+		minPortion = (float)values.get(7).value / (float)values.get(6).value;
+		accelDistance = (float) ((values.get(6).value - values.get(7).value) * values.get(5).value);
 		
 		if(accelDistance > distance / 2)
 			accelDistance = distance / 2;
@@ -79,14 +96,14 @@ public class Pid
 			
 			error = gyroSample[0] - goal;
 			
-			p = error * kP;
-			i = i + (error * kI);
-			d = (error - lastError) * kD;
+			p = (float) (error * values.get(0).value);
+			i = (float) (i + (error * values.get(1).value));
+			d = (float) ((error - lastError) * values.get(2).value);
 			
-			if (i > iLimit)
-				i = iLimit;
-			if (i < -1 * iLimit)
-				i = -1 * iLimit;
+			if (i > (float) values.get(3).value)
+				i = (float) values.get(3).value;
+			if (i < -1 * (float) values.get(3).value)
+				i = -1 * (float) values.get(3).value;
 			
 			if (distanceTravelled < accelDistance)
 				acceleration = distanceTravelled * (1 - minPortion) / accelDistance + minPortion;
@@ -95,8 +112,8 @@ public class Pid
 			else
 				acceleration = 1;
 			
-			motorLSpeed = (int) (acceleration * (maxSpeed + p + i + d));
-			motorRSpeed = (int) (acceleration * (-1 * maxSpeed + p + i + d));
+			motorLSpeed = (int) (acceleration * (values.get(6).value + p + i + d));
+			motorRSpeed = (int) (acceleration * (-1 * values.get(6).value + p + i + d));
 			
 			if (motorLSpeed > 100)
 				motorLSpeed = 100;
@@ -112,7 +129,7 @@ public class Pid
 			
 			lastError = error;
 			
-			Delay.msDelay(delay);
+			Delay.msDelay((long) values.get(4).value);
 			
 			distanceTravelled = (motorL.getTachoCount() - motorR.getTachoCount()) / 2;
 			
@@ -123,7 +140,7 @@ public class Pid
 		
 	}
 
-	public void runBack(int distance, float goal)
+	/*public void runBack(int distance, float goal)
 {
 		
 		i = 0;
@@ -185,16 +202,7 @@ public class Pid
 		motorL.setPower(0);
 		motorR.setPower(0);
 		
-	}
-	
-	public float gyro()
-	{
-		
-		gyroSampleProvider.fetchSample(gyroSample, 0);
-		
-		return gyroSample[0];
-		
-	}
+	}*/
 	
 }
  
