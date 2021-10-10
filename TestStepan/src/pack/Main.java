@@ -11,6 +11,7 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 
 public class Main

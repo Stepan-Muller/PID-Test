@@ -42,8 +42,8 @@ public class Turn extends MenuItem
 		values.add(new MenuItem("I limit", 0.5f, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("accel rate", 1, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("max speed", 100, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 25, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 360, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 45, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("end delay", 100, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
 		this.increment = 10;
@@ -73,6 +73,42 @@ public class Turn extends MenuItem
 	
 	public void run(float goal)
 	{
+		
+		final MotorPid motorLPid = new MotorPid();
+		
+		Runnable lRunnable = new Runnable() 
+		{
+		
+			public void run()
+			{
+				
+				motorLPid.run();
+				
+			}
+			
+		};
+		
+		new Thread(lRunnable).start();
+		
+		motorLPid.motor = motorL;
+		
+		final MotorPid motorRPid = new MotorPid();
+		
+		Runnable rRunnable = new Runnable() 
+		{
+		
+			public void run()
+			{
+				
+				motorRPid.run();
+				
+			}
+			
+		};
+		
+		new Thread(rRunnable).start();
+		
+		motorRPid.motor = motorL;
 		
 		gyroSample = new float[gyroSampleProvider.sampleSize()];
 		originalAngle = gyroSample[0];
@@ -127,15 +163,15 @@ public class Turn extends MenuItem
 				fromLastError = 0;
 			lastError = error;
 			
-			motorL.setPower(motorLSpeed);
-			motorR.setPower(motorRSpeed);
+			motorLPid.speed = motorLSpeed;
+			motorRPid.speed = motorRSpeed;
 			
 			Delay.msDelay((long) values.get(4).value);
 
 		}
 		
-		motorL.setPower(0);
-		motorR.setPower(0);
+		motorLPid.speed = 0;
+		motorRPid.speed = 0;
 
 		Sound.beep();
 	}
