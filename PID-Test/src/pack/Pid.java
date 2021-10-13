@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lejos.hardware.motor.UnregulatedMotor;
-import lejos.hardware.port.MotorPort;
-import lejos.hardware.port.Port;
-import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
@@ -18,6 +15,8 @@ public class Pid extends MenuItem
 	UnregulatedMotor motorL;
 	UnregulatedMotor motorR;
 	SampleProvider gyroSampleProvider;
+	final MotorPid motorLPid;
+	final MotorPid motorRPid;
 	
 	float p;
 	float i;
@@ -32,7 +31,7 @@ public class Pid extends MenuItem
 	int motorRSpeed;
 	static float[] gyroSample;
 	
-	public Pid()
+	public Pid(UnregulatedMotor _motorL, UnregulatedMotor _motorR)
 	{
 		
 		values = new ArrayList<MenuItem>(8);
@@ -48,6 +47,41 @@ public class Pid extends MenuItem
 		this.increment = 100;
 		this.minValue = 0;
 		this.secondaryFunction = true;
+		
+		motorL = _motorL;
+		motorR = _motorR;
+		
+		motorLPid = new MotorPid(motorL);
+		
+		Runnable lRunnable = new Runnable() 
+		{
+		
+			public void run()
+			{
+				
+				motorLPid.run();
+				
+			}
+			
+		};
+		
+		new Thread(lRunnable).start();
+		
+		motorRPid = new MotorPid(motorR);
+		
+		Runnable rRunnable = new Runnable() 
+		{
+		
+			public void run()
+			{
+				
+				motorRPid.run();
+				
+			}
+			
+		};
+		
+		new Thread(rRunnable).start();
 		
 	}
 	
@@ -78,8 +112,8 @@ public class Pid extends MenuItem
 		
 		i = 0;
 		
-		motorL.resetTachoCount();
-		motorR.resetTachoCount();
+		int initialTachoCountL = motorL.getTachoCount();
+		int initialTachoCountR = motorR.getTachoCount();
 		
 		distanceTravelled = 0;
 		
@@ -124,19 +158,19 @@ public class Pid extends MenuItem
 			if (motorRSpeed > 0)
 				motorRSpeed = 0;
 			
-			motorL.setPower(motorLSpeed);
-			motorR.setPower(motorRSpeed);
+			motorLPid.setSpeed(motorLSpeed);
+			motorRPid.setSpeed(motorRSpeed);
 			
 			lastError = error;
 			
 			Delay.msDelay((long) values.get(4).value);
 			
-			distanceTravelled = (motorL.getTachoCount() - motorR.getTachoCount()) / 2;
+			distanceTravelled = ((motorL.getTachoCount() - initialTachoCountL) - (motorR.getTachoCount() - initialTachoCountR)) / 2;
 
 		}
 		
-		motorL.setPower(0);
-		motorR.setPower(0);
+		motorLPid.setSpeed(motorLSpeed);
+		motorRPid.setSpeed(motorRSpeed);
 		
 	}
 
@@ -205,4 +239,3 @@ public class Pid extends MenuItem
 	}*/
 	
 }
- 
