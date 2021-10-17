@@ -15,8 +15,8 @@ public class Pid extends MenuItem
 	UnregulatedMotor motorL;
 	UnregulatedMotor motorR;
 	SampleProvider gyroSampleProvider;
-	final MotorPid motorLPid;
-	final MotorPid motorRPid;
+	MotorPid motorLPid;
+	MotorPid motorRPid;
 	
 	float p;
 	float i;
@@ -31,57 +31,30 @@ public class Pid extends MenuItem
 	int motorRSpeed;
 	static float[] gyroSample;
 	
-	public Pid(UnregulatedMotor _motorL, UnregulatedMotor _motorR)
+	public Pid(MotorPid _motorLPid, MotorPid _motorRPid, UnregulatedMotor _motorL, UnregulatedMotor _motorR, SampleProvider _gyroSampleProvider)
 	{
 		
 		values = new ArrayList<MenuItem>(8);
-		values.add(new MenuItem("konst. P", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. P", 1, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. I", 0, 0.0001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. D", 0, 1000, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("I limit", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("I limit", 100, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("accel rate", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("max speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("accel rate", 10, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 75, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 35, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
 		this.increment = 100;
 		this.minValue = 0;
 		this.secondaryFunction = true;
 		
+		motorLPid = _motorLPid;
+		motorRPid = _motorRPid;
+		
 		motorL = _motorL;
 		motorR = _motorR;
 		
-		motorLPid = new MotorPid(motorL);
-		
-		Runnable lRunnable = new Runnable() 
-		{
-		
-			public void run()
-			{
-				
-				motorLPid.run();
-				
-			}
-			
-		};
-		
-		new Thread(lRunnable).start();
-		
-		motorRPid = new MotorPid(motorR);
-		
-		Runnable rRunnable = new Runnable() 
-		{
-		
-			public void run()
-			{
-				
-				motorRPid.run();
-				
-			}
-			
-		};
-		
-		new Thread(rRunnable).start();
+		gyroSampleProvider = _gyroSampleProvider;
 		
 	}
 	
@@ -89,6 +62,7 @@ public class Pid extends MenuItem
 	public void secondFunction()
 	{
 		
+		@SuppressWarnings("unused")
 		Menu subMenu = new Menu(values);
 		
 	}
@@ -121,7 +95,11 @@ public class Pid extends MenuItem
 		accelDistance = (values.get(6).value - values.get(7).value) * values.get(5).value;
 		
 		if(accelDistance > distance / 2)
+		{
+			
 			accelDistance = distance / 2;
+			
+		}
 		
 		while(distanceTravelled <= distance)
 		{
@@ -166,77 +144,13 @@ public class Pid extends MenuItem
 			Delay.msDelay((long) values.get(4).value);
 			
 			distanceTravelled = ((motorL.getTachoCount() - initialTachoCountL) - (motorR.getTachoCount() - initialTachoCountR)) / 2;
-
+			
 		}
 		
-		motorLPid.setSpeed(motorLSpeed);
-		motorRPid.setSpeed(motorRSpeed);
+		motorLPid.setSpeed(0);
+		motorRPid.setSpeed(0);
 		
 	}
-
-	/*public void runBack(int distance, float goal)
-{
-		
-		i = 0;
-		
-		motorL.resetTachoCount();
-		motorR.resetTachoCount();
-		
-		distanceTravelled = 0;
-		
-		firstPortion = firstSpeed / baseSpeed;
-		lastPortion = lastSpeed / baseSpeed;
-		
-		while(distanceTravelled <= distance)
-		{
-			
-			gyroSampleProvider.fetchSample(gyroSample, 0);
-			
-			error = gyroSample[0] - goal;
-			
-			p = error * kP;
-			i = i + (error * kI);
-			d = (error - lastError) * kD;
-			
-			if (i > iLimit)
-				i = iLimit;
-			if (i < -1 * iLimit)
-				i = -1 * iLimit;
-			
-			if (distanceTravelled < accelDistance)
-				acceleration = distanceTravelled * (1 - firstPortion) / accelDistance + firstPortion;
-			else if (distanceTravelled > distance - decelDistance)
-				acceleration = (distanceTravelled - distance) * (1 - lastPortion) / decelDistance * -1 + lastPortion;
-			else
-				acceleration = 1;
-			
-			motorRSpeed = (int) (acceleration * (baseSpeed + p + i + d));
-			motorLSpeed = (int) (acceleration * (-1 * baseSpeed + p + i + d));
-			
-			if (motorRSpeed > 100)
-				motorRSpeed = 100;
-			if (motorRSpeed < 0)
-				motorRSpeed = 0;
-			if (motorLSpeed < -100)
-				motorLSpeed = -100;
-			if (motorLSpeed > 0)
-				motorLSpeed = 0;
-			
-			motorL.setPower(motorLSpeed);
-			motorR.setPower(motorRSpeed);
-			
-			lastError = error;
-			
-			Delay.msDelay(delay);
-			
-			distanceTravelled = (motorR.getTachoCount() - motorL.getTachoCount()) / 2;
-			
-		}
-		
-		motorL.setPower(0);
-		motorR.setPower(0);
-		
-	}*/
 	
 }
  

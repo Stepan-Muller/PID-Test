@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 
-import lejos.hardware.motor.UnregulatedMotor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 import lejos.hardware.Sound;
@@ -31,7 +30,7 @@ public class Turn extends MenuItem
 	float motorSpeed;
 	static float[] gyroSample;
 	
-	public Turn(UnregulatedMotor motorL, UnregulatedMotor motorR)
+	public Turn(MotorPid _motorLPid, MotorPid _motorRPid, SampleProvider _gyroSampleProvider)
 	{
 		
 		values = new ArrayList<MenuItem>();
@@ -42,43 +41,16 @@ public class Turn extends MenuItem
 		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("accel rate", 2, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("max speed", 270, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 20, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("end delay", 100, 100, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 15, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("end delay", 10, 100, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
 		this.increment = 10;
 		this.secondaryFunction = true;
 		
-		motorLPid = new MotorPid(motorL);
+		motorLPid = _motorLPid;
+		motorRPid = _motorRPid;
 		
-		Runnable lRunnable = new Runnable() 
-		{
-		
-			public void run()
-			{
-				
-				motorLPid.run();
-				
-			}
-			
-		};
-		
-		new Thread(lRunnable).start();
-		
-		motorRPid = new MotorPid(motorR);
-		
-		Runnable rRunnable = new Runnable() 
-		{
-		
-			public void run()
-			{
-				
-				motorRPid.run();
-				
-			}
-			
-		};
-		
-		new Thread(rRunnable).start();
+		gyroSampleProvider = _gyroSampleProvider;
 		
 	}
 	
@@ -86,6 +58,7 @@ public class Turn extends MenuItem
 	public void secondFunction()
 	{
 		
+		@SuppressWarnings("unused")
 		Menu subMenu = new Menu(values);
 		
 	}
@@ -173,3 +146,4 @@ public class Turn extends MenuItem
 	}
 	
 }
+

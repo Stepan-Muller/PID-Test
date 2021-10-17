@@ -3,7 +3,6 @@ package pack;
 import lejos.hardware.motor.UnregulatedMotor;
 import lejos.utility.Delay;
 import lejos.utility.Stopwatch;
-import lejos.utility.Timer;
 
 public class MotorPid
 {
@@ -52,7 +51,7 @@ public class MotorPid
 		while(true)
 		{
 			
-			error = goal - (motor.getTachoCount() - lastTachoCount / stopwatch.elapsed() / 1000);
+			error = goal - ((motor.getTachoCount() - lastTachoCount) / stopwatch.elapsed() / 1000);
 			
 			stopwatch.reset();
 			lastTachoCount = motor.getTachoCount();
