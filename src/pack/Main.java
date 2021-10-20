@@ -3,8 +3,10 @@ package pack;
 import java.util.ArrayList;
 import java.util.List;
 
+import lejos.hardware.BrickFinder;
 import lejos.hardware.Sound;
-import lejos.hardware.lcd.LCD;
+import lejos.hardware.lcd.GraphicsLCD;
+import lejos.hardware.lcd.Font;
 import lejos.hardware.motor.UnregulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
@@ -13,6 +15,8 @@ import lejos.robotics.SampleProvider;
 
 public class Main
 {
+	
+	static GraphicsLCD graphicsLCD = BrickFinder.getDefault().getGraphicsLCD();
 	
 	static UnregulatedMotor motorL = new UnregulatedMotor(MotorPort.B);
 	static UnregulatedMotor motorR = new UnregulatedMotor(MotorPort.C);
@@ -24,7 +28,8 @@ public class Main
 	public static void main(String[] args)
 	{
 		
-		LCD.setAutoRefresh(false);
+		graphicsLCD.setAutoRefresh(false);
+		graphicsLCD.setFont(Font.getSmallFont());
 		
 		final MotorPid motorLPid = new MotorPid(motorL);
 		
@@ -58,29 +63,14 @@ public class Main
 		
 		new Thread(rRunnable).start();
 		
-		Sound.beep();
-		
-		/*List<Pid> pids = new ArrayList<Pid>();
-		List<Turn> turns = new ArrayList<Turn>();
-		
-		pids.add(new Pid(motorLPid, motorRPid, motorL, motorR));
-		pids.add(new Pid(motorLPid, motorRPid, motorL, motorR));
-		pids.add(new Pid(motorLPid, motorRPid, motorL, motorR));
-		
-		pids.get(0).values.get(0).value = 1;
-		//pids.get(0).values.get(1).value = 0.0003f;
-		//pids.get(0).values.get(2).value = 10000;
-		pids.get(0).values.get(3).value = 100;
-		pids.get(0).values.get(4).value = 0;
-		pids.get(0).values.get(5).value = 10;
-		pids.get(0).name = "default";
-		pids.get(0).values.get(6).value = 75;
-		pids.get(0).values.get(7).value = 35;
-		pids.get(0).gyroSampleProvider = gyroSampleProvider;*/
-		
 		List<Ride> rides = new ArrayList<Ride>();
 		
-		rides.add(new Ride(motorLPid, motorRPid, motorL, motorR, gyroSampleProvider));
+		rides.add(new Ride("file1", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider));
+		rides.add(new Ride("file2", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider));
+		
+		Sound.beep();
+		
+		System.out.println(Keyboard.keyboard());
 		
 		@SuppressWarnings("unused")
 		Menu menu = new Menu(rides);

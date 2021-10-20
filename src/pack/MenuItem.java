@@ -12,6 +12,7 @@ public class MenuItem
 	
 	public void run() {}
 	public void secondFunction() {}
+	public void save() {}
 	
 	public MenuItem() {}
 	

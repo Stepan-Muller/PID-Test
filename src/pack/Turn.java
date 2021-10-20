@@ -34,15 +34,15 @@ public class Turn extends MenuItem
 	{
 		
 		values = new ArrayList<MenuItem>();
-		values.add(new MenuItem("konst. P", 0.003f, 0.001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("konst. P", 0, 0.001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. I", 0, 0.00001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. D", 0, 1000, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("I limit", 1, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("I limit", 0, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("accel rate", 2, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("max speed", 270, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 15, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("end delay", 10, 100, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("accel rate", 0, 0.1f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 0, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 0, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("end delay", 0, 100, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
 		this.increment = 10;
 		this.secondaryFunction = true;

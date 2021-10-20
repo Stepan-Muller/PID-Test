@@ -34,15 +34,15 @@ public class Pid extends MenuItem
 	public Pid(MotorPid _motorLPid, MotorPid _motorRPid, UnregulatedMotor _motorL, UnregulatedMotor _motorR, SampleProvider _gyroSampleProvider)
 	{
 		
-		values = new ArrayList<MenuItem>(8);
-		values.add(new MenuItem("konst. P", 1, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values = new ArrayList<MenuItem>();
+		values.add(new MenuItem("konst. P", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. I", 0, 0.0001f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("konst. D", 0, 1000, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("I limit", 100, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("I limit", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		values.add(new MenuItem("delay", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("accel rate", 10, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("max speed", 75, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
-		values.add(new MenuItem("min speed", 35, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("accel rate", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("max speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
+		values.add(new MenuItem("min speed", 0, 1, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, false));
 		
 		this.increment = 100;
 		this.minValue = 0;
