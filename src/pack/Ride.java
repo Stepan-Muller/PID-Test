@@ -11,7 +11,7 @@ import java.util.Scanner;
 import lejos.hardware.motor.UnregulatedMotor;
 import lejos.robotics.SampleProvider;
 
-public class Ride extends MenuItem
+public class Ride extends MenuItem implements Pausable
 {
 	
 	List<MenuItem> values;
@@ -22,7 +22,11 @@ public class Ride extends MenuItem
 	String fileName;
 	String program;
 	
-	public Ride(String _fileName, MotorPid motorLPid, MotorPid motorRPid, UnregulatedMotor motorL, UnregulatedMotor motorR, SampleProvider gyroSampleProvider)
+	Pauser pauser;
+	
+	boolean stopped;
+	
+	public Ride(String _fileName, MotorPid motorLPid, MotorPid motorRPid, UnregulatedMotor motorL, UnregulatedMotor motorR, SampleProvider gyroSampleProvider, Pauser _pauser)
 	{
 		
 		values = new ArrayList<MenuItem>();
@@ -47,6 +51,8 @@ public class Ride extends MenuItem
 		
 		pid = new Pid(motorLPid, motorRPid, motorL, motorR, gyroSampleProvider);
 		turn = new Turn(motorLPid, motorRPid, gyroSampleProvider);
+		
+		pauser = _pauser;
 		
 		fileName = _fileName;
 		
@@ -111,7 +117,9 @@ public class Ride extends MenuItem
     	Scanner lineScanner = null;
 		String command = null;
 		
-		while (scanner.hasNextLine()) 
+		stopped = false;
+		
+		while (scanner.hasNextLine() & !stopped) 
   		{
   			
   			line = scanner.nextLine();
@@ -120,14 +128,22 @@ public class Ride extends MenuItem
   			
   			if (command.equals("Straight"))
   			{
+
+  				pauser.objects.add(pid);
   				
   				pid.run(lineScanner.nextInt(), lineScanner.nextInt());
+  				
+  				pauser.objects.remove(pid);
   				
   			}
   			else if (command.equals("Turn"))
   			{
   				
+  				pauser.objects.add(turn);
+  				
   				turn.run(lineScanner.nextInt());
+  				
+  				pauser.objects.add(turn);
   				
   			}
   			
@@ -199,6 +215,15 @@ public class Ride extends MenuItem
 		for (int i = 0; i < turn.values.size(); i++)
 			turn.values.set(i, values.get(i + pid.values.size()));
 
+	}
+
+	
+	@Override
+	public void stop() 
+	{
+		
+		stopped = true;
+		
 	}
 	
 }

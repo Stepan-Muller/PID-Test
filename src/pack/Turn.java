@@ -8,7 +8,7 @@ import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 import lejos.hardware.Sound;
 
-public class Turn extends MenuItem 
+public class Turn extends MenuItem implements Pausable 
 {
 
 	List<MenuItem> values;
@@ -29,6 +29,8 @@ public class Turn extends MenuItem
 	int fromLastError;
 	float motorSpeed;
 	static float[] gyroSample;
+	
+	boolean stopped;
 	
 	public Turn(MotorPid _motorLPid, MotorPid _motorRPid, SampleProvider _gyroSampleProvider)
 	{
@@ -89,7 +91,9 @@ public class Turn extends MenuItem
 		if(accelDistance > Math.abs(goal - originalAngle) / 2)
 			accelDistance = Math.abs(goal - originalAngle) / 2;
 		
-		while(fromLastError < values.get(8).value)
+		stopped = false;
+		
+		while(fromLastError < values.get(8).value && !stopped)
 		{
 			
 			gyroSampleProvider.fetchSample(gyroSample, 0);
@@ -143,6 +147,14 @@ public class Turn extends MenuItem
 		motorRPid.setSpeed(0);
 
 		Sound.beep();
+	}
+
+	@Override
+	public void stop() 
+	{
+		
+		stopped = true;
+		
 	}
 	
 }

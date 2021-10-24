@@ -63,14 +63,30 @@ public class Main
 		
 		new Thread(rRunnable).start();
 		
+		final Pauser pauser = new Pauser();
+		
+		Runnable pauseRunnable = new Runnable()
+		{
+			
+			public void run()
+			{
+				
+				pauser.run();
+				
+			}
+			
+		};
+		
+		new Thread(pauseRunnable).start();
+		
 		List<Ride> rides = new ArrayList<Ride>();
 		
-		rides.add(new Ride("file1", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider));
-		rides.add(new Ride("file2", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider));
+		rides.add(new Ride("file1", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
+		rides.add(new Ride("file2", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
+		
+		pauser.objects.addAll(rides);
 		
 		Sound.beep();
-		
-		System.out.println(Keyboard.keyboard());
 		
 		@SuppressWarnings("unused")
 		Menu menu = new Menu(rides);

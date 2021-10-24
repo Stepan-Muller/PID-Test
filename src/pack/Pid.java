@@ -7,7 +7,7 @@ import lejos.hardware.motor.UnregulatedMotor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-public class Pid extends MenuItem
+public class Pid extends MenuItem implements Pausable
 {
 
 	List<MenuItem> values;
@@ -30,6 +30,8 @@ public class Pid extends MenuItem
 	int motorLSpeed;
 	int motorRSpeed;
 	static float[] gyroSample;
+	
+	boolean stopped;
 	
 	public Pid(MotorPid _motorLPid, MotorPid _motorRPid, UnregulatedMotor _motorL, UnregulatedMotor _motorR, SampleProvider _gyroSampleProvider)
 	{
@@ -101,7 +103,9 @@ public class Pid extends MenuItem
 			
 		}
 		
-		while(distanceTravelled <= distance)
+		stopped = false;
+		
+		while(distanceTravelled <= distance && !stopped)
 		{
 			
 			gyroSampleProvider.fetchSample(gyroSample, 0);
@@ -149,6 +153,14 @@ public class Pid extends MenuItem
 		
 		motorLPid.setSpeed(0);
 		motorRPid.setSpeed(0);
+		
+	}
+
+	@Override
+	public void stop() 
+	{
+		
+		stopped = true;
 		
 	}
 	

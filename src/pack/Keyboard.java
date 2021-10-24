@@ -105,7 +105,7 @@ public class Keyboard
 		}
 		
 		for (int i = 0; i < 128 / graphicsLCD.getFont().getHeight(); i++)
-			graphicsLCD.drawChar(keys[(i + keysIndex - 10) % keys.length], outputIndex * graphicsLCD.getFont().width, i * graphicsLCD.getFont().getHeight(), 0);
+			graphicsLCD.drawChar(keys[(i + keysIndex - 10 + keys.length) % keys.length], outputIndex * graphicsLCD.getFont().width, i * graphicsLCD.getFont().getHeight(), 0);
 		
 	}
 	
