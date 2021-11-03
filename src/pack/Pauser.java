@@ -6,6 +6,7 @@ import java.util.List;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
+import lejos.utility.Delay;
 
 public class Pauser 
 {
@@ -25,8 +26,16 @@ public class Pauser
 			colorSampleProvider.fetchSample(colorSample, 0);
 			
 			if (colorSample[0] == 0)
+			{
+				
 				for (int i = 0; i < objects.size(); i++)
 					objects.get(i).stop();
+				
+				objects.clear();
+				
+			}
+			
+			Delay.msDelay(1000);
 			
 		}
 		
