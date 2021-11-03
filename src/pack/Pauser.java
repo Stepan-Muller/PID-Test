@@ -6,7 +6,6 @@ import java.util.List;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
-import lejos.utility.Delay;
 
 public class Pauser 
 {
