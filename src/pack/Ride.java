@@ -73,7 +73,7 @@ public class Ride extends MenuItem implements Pausable
 		catch (FileNotFoundException e) 
 		{
 			
-			System.out.println("Soubor nenalezen");
+			System.out.println("Soubor" + fileName + ".txt nenalezen");
 			return;
 			
 		}
@@ -113,8 +113,8 @@ public class Ride extends MenuItem implements Pausable
 	{
 		
 		Scanner scanner = new Scanner(program);
-		String  line;
-    	Scanner lineScanner = null;
+		String  line = "";
+    	Scanner lineScanner = new Scanner(line);
 		String command = null;
 		
 		stopped = false;

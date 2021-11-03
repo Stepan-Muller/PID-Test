@@ -81,8 +81,8 @@ public class Main
 		
 		List<Ride> rides = new ArrayList<Ride>();
 		
-		rides.add(new Ride("file1", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
-		rides.add(new Ride("file2", motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
+		rides.add(new Ride(Keyboard.keyboard(), motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
+		rides.add(new Ride(Keyboard.keyboard(), motorLPid, motorRPid, motorL, motorR, gyroSampleProvider, pauser));
 		
 		pauser.objects.addAll(rides);
 		
