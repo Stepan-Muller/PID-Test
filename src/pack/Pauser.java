@@ -1,3 +1,4 @@
+
 package pack;
 
 import java.util.ArrayList;
@@ -11,9 +12,11 @@ import lejos.utility.Delay;
 public class Pauser 
 {
 
-	static SampleProvider colorSampleProvider = new EV3ColorSensor(SensorPort.S2).getRedMode();
+	static SampleProvider rightColorSampleProvider = new EV3ColorSensor(SensorPort.S2).getRedMode();
+	static SampleProvider leftColorSampleProvider = new EV3ColorSensor(SensorPort.S3).getRedMode();
 	
-	static float[] colorSample = new float[colorSampleProvider.sampleSize()];
+	static float[] rightColorSample = new float[rightColorSampleProvider.sampleSize()];
+	static float[] leftColorSample = new float[leftColorSampleProvider.sampleSize()];
 	
 	public List<Pausable> objects = new ArrayList<Pausable>();
 	
@@ -23,19 +26,16 @@ public class Pauser
 		while (true)
 		{
 		
-			colorSampleProvider.fetchSample(colorSample, 0);
+			rightColorSampleProvider.fetchSample(rightColorSample, 0);
+			leftColorSampleProvider.fetchSample(leftColorSample, 0);
 			
-			if (colorSample[0] == 0)
+			if (rightColorSample[0] == 0 && leftColorSample[0] == 0)
 			{
 				
 				for (int i = 0; i < objects.size(); i++)
 					objects.get(i).stop();
 				
-				objects.clear();
-				
 			}
-			
-			Delay.msDelay(1000);
 			
 		}
 		
